@@ -8,6 +8,7 @@ import java.util.List;
 public class AddressBookDBService {
 
     private static AddressBookDBService addressBookDBService;
+    private PreparedStatement addressBookDataStatement;
 
     private AddressBookDBService() {
 
@@ -70,5 +71,45 @@ public class AddressBookDBService {
         }
         return personList;
 
+    }
+
+    public int updateContactNumber(String firstName, String contactNumber) {
+        return this.updateAddressBookDataUsingStatement(firstName, contactNumber);
+
+    }
+
+    private int updateAddressBookDataUsingStatement(String firstName, String mobileNumber) {
+        String sql = String.format("update addressbook_table set mobileNumber = '%s' where firstName = '%s';", mobileNumber, firstName);
+        try (Connection connection = this.getConnection()) {
+            Statement statement = connection.createStatement();
+            return statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Person> getaddressBookData(String firstName) {
+        List<Person> personList = null;
+        if (this.addressBookDataStatement == null)
+            this.prepareStatementForAddressBookData();
+        try {
+            addressBookDataStatement.setString(1, firstName);
+            ResultSet resultSet = addressBookDataStatement.executeQuery();
+            personList = this.getPersonData(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return personList;
+    }
+
+    private void prepareStatementForAddressBookData() {
+        try {
+            Connection connection = this.getConnection();
+            String sql = "SELECT * FROM addressbook_table WHERE firstName = ?";
+            addressBookDataStatement = connection.prepareStatement(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

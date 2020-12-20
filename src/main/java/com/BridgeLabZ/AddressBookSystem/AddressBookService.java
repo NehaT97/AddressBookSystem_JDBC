@@ -4,6 +4,7 @@ import java.util.List;
 
 public class AddressBookService {
 
+
     public enum IOService {DB_IO, REST_IO}
 
     private List<Person> personList;
@@ -22,5 +23,27 @@ public class AddressBookService {
         if (ioService.equals(IOService.DB_IO))
             this.personList = addressBookDBService.readData();
         return personList;
+    }
+
+    public void updateContactNumber(String firstName, String mobileNumber) {
+        int result = addressBookDBService.updateContactNumber(firstName, mobileNumber);
+        if (result == 0) return;
+        Person person = this.getAddressBookData(firstName);
+        if (person != null)
+            person.mobileNumber = mobileNumber;
+
+
+    }
+
+    public Person getAddressBookData(String firstName) {
+        return this.personList.stream()
+                .filter(addressBookDataItem -> addressBookDataItem.getFirstName().equals(firstName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public boolean checkAddressBookInSyncWithDB(String firstName) {
+        List<Person> personList = addressBookDBService.getaddressBookData(firstName);
+        return personList.get(0).equals(getAddressBookData(firstName));
     }
 }
