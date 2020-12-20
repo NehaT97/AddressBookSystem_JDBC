@@ -1,5 +1,6 @@
 package com.BridgeLabZ.AddressBookSystem;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class AddressBookService {
@@ -45,5 +46,11 @@ public class AddressBookService {
     public boolean checkAddressBookInSyncWithDB(String firstName) {
         List<Person> personList = addressBookDBService.getaddressBookData(firstName);
         return personList.get(0).equals(getAddressBookData(firstName));
+    }
+
+    public List<Person> readAddressBookForDateRange(IOService ioService, LocalDate startDate, LocalDate endDate) {
+        if (ioService.equals(IOService.DB_IO))
+            return addressBookDBService.getAddressBookForDateRange(startDate, endDate);
+        return null;
     }
 }
